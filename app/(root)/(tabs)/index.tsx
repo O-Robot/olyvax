@@ -8,7 +8,7 @@ export default function HomeScreen() {
         href={"/sign-in"}
         className="font-black font-rubikbold text-4xl text-red-500"
       >
-        Welcome to Olyax
+        Welcome to Olyvax
       </Link>
     </SafeAreaView>
   );
