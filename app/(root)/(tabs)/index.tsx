@@ -1,9 +1,15 @@
-import { Text } from "react-native";
+import { Link } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   return (
-    <Text className="font-black font-rubik-bold text-4xl text-red-500">
-      Welcome to Olyax
-    </Text>
+    <SafeAreaView>
+      <Link
+        href={"/sign-in"}
+        className="font-black font-rubikbold text-4xl text-red-500"
+      >
+        Welcome to Olyax
+      </Link>
+    </SafeAreaView>
   );
 }

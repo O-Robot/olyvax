@@ -15,12 +15,12 @@ module.exports = {
       },
       colors: {
         primary: {
-          default: "#FF6B00",
+          DEFAULT: "#FF6B00",
           100: "#FFF9F5",
           200: "#FFF1E6",
         },
         black: {
-          default: "#1A110B",
+          DEFAULT: "#1A110B",
           100: "#B8B1AB",
           200: "#5F5852",
         },
