@@ -1,6 +1,7 @@
+import { getGravatar, getHighResGoogleAvatar } from "@/constants";
 import * as linking from "expo-linking";
 import { openAuthSessionAsync } from "expo-web-browser";
-import { Account, Avatars, Client, OAuthProvider } from "react-native-appwrite";
+import { Account, Client, OAuthProvider } from "react-native-appwrite";
 
 export const config = {
   platform: "com.robot.olyvax",
@@ -14,7 +15,6 @@ client
   .setProject(config.projectId!)
   .setPlatform(config.platform!);
 
-export const avatar = new Avatars(client);
 export const account = new Account(client);
 
 export async function login() {
@@ -27,6 +27,7 @@ export async function login() {
     );
 
     if (!response) throw new Error("Failed to login");
+
     const browserResult = await openAuthSessionAsync(
       response.toString(),
       redirectURI,
@@ -45,6 +46,36 @@ export async function login() {
     const session = await account.createSession({ userId, secret });
 
     if (!session) throw new Error("Failed to create session");
+
+    try {
+      const identities = await account.listIdentities();
+
+      const googleIdentity = identities.identities.find(
+        (identity) => identity.provider === "google",
+      );
+
+      if (googleIdentity?.providerAccessToken) {
+        const res = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${googleIdentity.providerAccessToken}`,
+            },
+          },
+        );
+
+        const data = await res.json();
+
+        if (data?.picture) {
+          const highResAvatar = getHighResGoogleAvatar(data.picture);
+          await account.updatePrefs({
+            avatar: highResAvatar,
+          });
+        }
+      }
+    } catch (avatarError) {
+      console.log("Avatar fetch failed:", avatarError);
+    }
 
     return true;
   } catch (error) {
@@ -65,11 +96,22 @@ export async function logout() {
 export async function getCurrentUser() {
   try {
     const response = await account.get();
-    console.log(response, null, 2);
     if (!response) throw new Error("Failed to retrieve user");
 
-    const userAvatar = avatar.getInitials({ name: response.name });
-    return { ...response, avatar: userAvatar.toString() };
+    let avatarUrl = null;
+
+    if (response.prefs?.avatar) {
+      avatarUrl = response.prefs.avatar;
+    }
+
+    if (!avatarUrl && response.email) {
+      avatarUrl = getGravatar(response.email);
+    }
+
+    return {
+      ...response,
+      avatar: avatarUrl,
+    };
   } catch (error) {
     console.log(error);
     return null;
