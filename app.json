@@ -7,34 +7,43 @@
     "icon": "./assets/images/icon.png",
     "scheme": "olyvax",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/images/splashicon.png",
+      "bundleIdentifier": "com.orobot.olyvax"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon.png"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "splash": {
+        "image": "./assets/images/splashicon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FF6B00"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.orobot.olyvax"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
+    },
+    "splash": {
+      "image": "./assets/images/splashicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B00"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#ff6b00",
+          "backgroundColor": "#FF6B00",
+          "image": "./assets/images/splashicon.png",
           "dark": {
-            "backgroundColor": "#ff6b00"
-          },
-          "enableFullScreenImage_legacy": true
+            "backgroundColor": "#FF6B00"
+          }
         }
       ],
       [

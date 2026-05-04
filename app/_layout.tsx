@@ -4,6 +4,8 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import "./globals.css";
 
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "Rubik-Bold": require("../assets/fonts/Rubik-Bold.ttf"),
@@ -16,14 +18,18 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      const timer = setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 3000);
+
+      return () => clearTimeout(timer);
     }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
   return (
     <GlobalProvider>
-      <Stack screenOptions={{ headerShown: false }} />;
+      <Stack screenOptions={{ headerShown: false }} />
     </GlobalProvider>
   );
 }
