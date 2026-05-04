@@ -30,7 +30,7 @@ const Search = () => {
           className="text-sm font-rubik h-full text-black ml-2 flex-1"
         />
       </View>
-      {search && (
+      {params.query && (
         <TouchableOpacity
           onPress={() => {
             setSearch("");

@@ -199,3 +199,17 @@ export async function getProperties({
     return [];
   }
 }
+
+export async function getPropertyById({ id }: { id: string }) {
+  try {
+    const result = await database.getDocument(
+      config.databaseId!,
+      config.propertieasCollectionId!,
+      id,
+    );
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

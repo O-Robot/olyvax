@@ -1,7 +1,6 @@
 import { Card } from "@/components/cards";
 import EmptyResult from "@/components/empty-result";
 import Filters from "@/components/filters";
-import Search from "@/components/search";
 import { getGreeting } from "@/constants";
 import icons from "@/constants/icons";
 import { getProperties } from "@/lib/appwrite";
@@ -98,7 +97,7 @@ export default function HomeScreen() {
               </View>
               <Image source={icons.bell} className="size-6" />
             </View>
-            <Search />
+            {/* <Search /> */}
             <View className="my-5">
               {featuredLoading ? (
                 <ActivityIndicator size="small" className="text-primary mt-5" />
@@ -138,7 +137,7 @@ export default function HomeScreen() {
                 <Text className="text-xl font-rubik-bold text-black">
                   {params.query ? "Search Result" : "Our Recommendation"}
                 </Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/explore")}>
                   <Text className="text-lg font-rubik-bold text-primary">
                     See All
                   </Text>

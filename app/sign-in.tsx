@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   ScrollView,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -29,6 +30,11 @@ const SignIn = () => {
   };
   return (
     <SafeAreaView className="bg-white h-full">
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <ScrollView contentContainerClassName="h-full">
         <Image
           source={images.onboarding}
