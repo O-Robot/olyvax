@@ -30,6 +30,16 @@ const Search = () => {
           className="text-sm font-rubik h-full text-black ml-2 flex-1"
         />
       </View>
+      {search && (
+        <TouchableOpacity
+          onPress={() => {
+            setSearch("");
+            handleSearch("");
+          }}
+        >
+          <Image source={icons.cancel} className="size-5 mr-2" />
+        </TouchableOpacity>
+      )}
       <TouchableOpacity>
         <Image source={icons.filter} className="size-5" />
       </TouchableOpacity>
