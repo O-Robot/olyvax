@@ -64,6 +64,7 @@ export const categories = [
   { title: "Villas", category: "Villa" },
   { title: "Apartments", category: "Apartments" },
   { title: "Townhomes", category: "Townhomes" },
+  { title: "Commercial", category: "Commercial" },
   { title: "Others", category: "Others" },
 ];
 
@@ -105,34 +106,42 @@ export const settings = [
 export const facilities = [
   {
     title: "Laundry",
+    label: "Laundry",
     icon: icons.laundry,
   },
   {
     title: "Car Parking",
+    label: "Parking",
     icon: icons.carPark,
   },
   {
     title: "Sports Center",
+    label: "Sports",
     icon: icons.run,
   },
   {
-    title: "Cutlery",
+    title: "Restaurant",
+    label: "Restaurant",
     icon: icons.cutlery,
   },
   {
     title: "Gym",
+    label: "Gym",
     icon: icons.dumbell,
   },
   {
     title: "Swimming pool",
+    label: "Swimming",
     icon: icons.swim,
   },
   {
     title: "Wifi",
+    label: "Wifi",
     icon: icons.wifi,
   },
   {
     title: "Pet Center",
+    label: "Pet-friendly",
     icon: icons.dog,
   },
 ];

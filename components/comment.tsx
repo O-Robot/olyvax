@@ -8,7 +8,7 @@ interface Props {
 
 const Comment = ({ item: { avatar, name, review, $createdAt } }: Props) => {
   return (
-    <View className="flex flex-col items-start">
+    <View className="flex flex-col items-start py-2 w-full">
       <View className="flex flex-row items-center">
         <Image source={{ uri: avatar }} className="size-14 rounded-full" />
         <Text className="text-base text-black-300 text-start font-rubik-bold ml-3">

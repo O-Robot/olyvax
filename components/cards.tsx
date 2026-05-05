@@ -25,9 +25,11 @@ export const Card = ({
         className="size-full rounded-2xl absolute bottom-0"
       />
 
-      <View className="flex flex-row items-center bg-white/90 px-3 py-1.5 rounded-full absolute top-5 right-5 gap-1">
+      <View className="flex flex-row items-center bg-white/90 px-3 py-1.5 rounded-full absolute top-5 right-5 gap-1.5 ">
         <Image source={icons.star} className="size-3.5" />
-        <Text className="text-xs font-rubik-bold text-primary">{rating}</Text>
+        <Text className="text-xs font-rubik-bold text-primary">
+          {Number(rating).toFixed(1)}
+        </Text>
       </View>
 
       <View className="flex flex-col items-start absolute bottom-5 inset-x-5">
@@ -42,8 +44,8 @@ export const Card = ({
         </Text>
 
         <View className="flex flex-row items-center justify-between w-full pt-3">
-          <Text className="text-xl font-rubik-extrabold text-white">
-            ₦{price}
+          <Text className="text-lg font-rubik-extrabold text-white">
+            ₦{price.toLocaleString()}
           </Text>
           <Image source={icons.heart} className="size-5" />
         </View>
@@ -60,13 +62,20 @@ export const Card = ({
       </View>
       <Image source={{ uri: image }} className="w-full h-40 rounded-lg" />
 
-      <View className="flex flex-col mt-2">
-        <Text className="text-base font-rubik-bold text-black">{name}</Text>
-        <Text className="text-xs font-rubik text-black-200">{address}</Text>
+      <View className="flex flex-col mt-2 justify-between">
+        <View className="flex-1">
+          <Text
+            className="text-base font-rubik-bold text-black"
+            numberOfLines={2}
+          >
+            {name}
+          </Text>
+          <Text className="text-xs font-rubik text-black-200">{address}</Text>
+        </View>
 
-        <View className="flex flex-row items-center justify-between mt-2">
-          <Text className="text-xl font-rubik-extrabold text-primary">
-            ₦{price}
+        <View className="flex flex-row items-center justify-between mt-2 align-baseline">
+          <Text className="text-lg font-rubik-extrabold text-primary">
+            ₦{price.toLocaleString()}
           </Text>
           <Image
             source={icons.heart}

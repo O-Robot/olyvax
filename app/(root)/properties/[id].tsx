@@ -5,11 +5,14 @@ import images from "@/constants/images";
 import { getPropertyById } from "@/lib/appwrite";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
   Image,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   ScrollView,
   StatusBar,
@@ -28,6 +31,50 @@ const Property = () => {
   });
 
   const windowHeight = Dimensions.get("window").height;
+  const windowWidth = Dimensions.get("window").width;
+
+  const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<
+    number | null
+  >(null);
+  const flatListRef = useRef<FlatList>(null);
+  const reviewsFlatListRef = useRef<FlatList>(null);
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / windowWidth);
+    setCurrentGalleryIndex(index);
+  };
+  const handleReviewScroll = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const index = Math.round(scrollPosition / windowWidth);
+    setCurrentReviewIndex(index);
+  };
+
+  useEffect(() => {
+    if (!property?.reviews || property.reviews.length <= 1) return;
+
+    const intervalId = setInterval(() => {
+      setCurrentReviewIndex((prevIndex) => {
+        const nextIndex =
+          prevIndex >= property.reviews.length - 1 ? 0 : prevIndex + 1;
+
+        reviewsFlatListRef.current?.scrollToIndex({
+          index: nextIndex,
+          animated: true,
+        });
+
+        return nextIndex;
+      });
+    }, 4000);
+
+    return () => clearInterval(intervalId);
+  }, [property?.reviews]);
+
   return (
     <View>
       <StatusBar
@@ -40,11 +87,56 @@ const Property = () => {
         contentContainerClassName="pb-32 bg-white"
       >
         <View className="relative w-full" style={{ height: windowHeight / 2 }}>
-          <Image
-            source={images.japan}
-            resizeMode="cover"
-            className="size-full"
-          />
+          {property?.gallery && property.gallery.length > 0 ? (
+            <View className="size-full">
+              <FlatList
+                ref={flatListRef}
+                data={property.gallery}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                keyExtractor={(item, index) =>
+                  typeof item === "string"
+                    ? item
+                    : item?.$id || index.toString()
+                }
+                renderItem={({ item }) => {
+                  const imageUrl =
+                    typeof item === "string"
+                      ? property?.image
+                      : item?.image || property?.image;
+                  return (
+                    <Image
+                      source={{ uri: imageUrl }}
+                      resizeMode="cover"
+                      style={{ width: windowWidth, height: windowHeight / 2 }}
+                    />
+                  );
+                }}
+              />
+              {/* Carousel Navigation Dots */}
+              <View className="absolute bottom-10 w-full flex flex-row justify-center gap-2 z-50">
+                {property.gallery.map((_: string, index: number) => (
+                  <View
+                    key={index}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      currentGalleryIndex === index
+                        ? "w-6 bg-primary"
+                        : "w-2 bg-white/70"
+                    }`}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : (
+            <Image
+              source={{ uri: property?.image }}
+              resizeMode="cover"
+              className="size-full"
+            />
+          )}
           <Image
             source={images.whiteGradient}
             className="absolute top-0 w-full z-40"
@@ -91,9 +183,11 @@ const Property = () => {
             <View className="flex flex-row items-center gap-2">
               <Image source={icons.star} className="size-5" />
               <Text className="text-black-200 text-sm font-rubik-medium">
-                {property?.rating}
+                {property?.rating != null
+                  ? Number(property?.rating).toFixed(1)
+                  : null}
                 {property?.reviews?.length &&
-                  `(${property?.reviews?.length} reviews)`}
+                  ` (${property?.reviews?.length} reviews)`}
               </Text>
             </View>
           </View>
@@ -154,9 +248,19 @@ const Property = () => {
             <Text className="text-black-300 text-xl font-rubik-bold">
               Overview
             </Text>
-            <Text className="text-black-200 text-base font-rubik mt-2">
+            <Text
+              numberOfLines={isExpanded ? undefined : 3}
+              className="text-black-200 text-base font-rubik mt-2"
+            >
               {property?.description}
             </Text>
+            {property?.description && (
+              <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)}>
+                <Text className="text-primary text-sm font-rubik-bold mt-2">
+                  {isExpanded ? "Show Less" : "Read More"}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
           {/* facilities */}
           <View className="mt-7">
@@ -168,7 +272,7 @@ const Property = () => {
               <View className="flex flex-row flex-wrap items-start justify-start mt-2 gap-5">
                 {property?.facilities?.map((item: string, index: number) => {
                   const facility = facilities.find(
-                    (facility) => facility.title === item,
+                    (facility) => facility.label === item,
                   );
 
                   return (
@@ -209,11 +313,15 @@ const Property = () => {
                 keyExtractor={(item) => item.$id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <Image
-                    source={{ uri: item.image }}
-                    className="size-40 rounded-xl"
-                  />
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity
+                    onPress={() => setSelectedGalleryIndex(index)}
+                  >
+                    <Image
+                      source={{ uri: item.image }}
+                      className="size-40 rounded-xl"
+                    />
+                  </TouchableOpacity>
                 )}
                 contentContainerClassName="flex gap-4 mt-3"
               />
@@ -225,8 +333,8 @@ const Property = () => {
             <Text className="text-black-300 text-xl font-rubik-bold">
               Location
             </Text>
-            <View className="flex flex-row items-center justify-start mt-4 gap-2">
-              <Image source={icons.location} className="size-4" />
+            <View className="flex flex-row items-center justify-start  py-2 gap-2">
+              <Image source={icons.location} className="size-4 " />
               <Text className="text-black-200 text-sm font-rubik-medium">
                 {property?.address}
               </Text>
@@ -245,19 +353,55 @@ const Property = () => {
                 <View className="flex flex-row items-center">
                   <Image source={icons.star} className="size-6" />
                   <Text className="text-black-300 text-xl font-rubik-bold ml-2">
-                    {property?.rating} ({property?.reviews.length} reviews)
+                    {property?.rating != null
+                      ? Number(property?.rating).toFixed(1)
+                      : null}{" "}
+                    ({property?.reviews.length} review
+                    {property?.reviews.length === 1 ? "" : "s"})
                   </Text>
                 </View>
-
-                <TouchableOpacity>
-                  <Text className="text-primary-300 text-base font-rubik-bold">
-                    View All
-                  </Text>
-                </TouchableOpacity>
               </View>
 
-              <View className="mt-5">
-                <Comment item={property?.reviews[0]} />
+              <View className="w-full mt-5">
+                <FlatList
+                  ref={reviewsFlatListRef}
+                  data={property?.reviews}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onScroll={handleReviewScroll}
+                  scrollEventThrottle={16}
+                  getItemLayout={(_, index) => ({
+                    length: windowWidth - 40,
+                    offset: (windowWidth - 40) * index,
+                    index,
+                  })}
+                  keyExtractor={(item, index) =>
+                    typeof item === "string"
+                      ? item
+                      : item?.$id || index.toString()
+                  }
+                  renderItem={({ item }) => {
+                    return (
+                      <View style={{ width: windowWidth - 40 }}>
+                        <Comment item={item} />
+                      </View>
+                    );
+                  }}
+                />
+                {/* Carousel Navigation Dots */}
+                <View className="flex flex-row justify-center gap-2 mt-5">
+                  {property?.reviews.map((_: any, index: number) => (
+                    <View
+                      key={index}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        currentReviewIndex === index
+                          ? "w-6 bg-primary"
+                          : "w-2 bg-primary-200"
+                      }`}
+                    />
+                  ))}
+                </View>
               </View>
             </View>
           )}
@@ -274,7 +418,7 @@ const Property = () => {
               numberOfLines={1}
               className="text-primary text-start text-2xl font-rubik-bold"
             >
-              ${property?.price}
+              ₦{property?.price.toLocaleString()}
             </Text>
           </View>
 
@@ -285,6 +429,51 @@ const Property = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Full Screen Image Modal */}
+      <Modal
+        visible={selectedGalleryIndex !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedGalleryIndex(null)}
+      >
+        <View className="flex-1 bg-black justify-center items-center">
+          <TouchableOpacity
+            onPress={() => setSelectedGalleryIndex(null)}
+            className="absolute top-14 right-6 z-50 bg-white/20 rounded-full size-10 items-center justify-center"
+          >
+            <Text className="text-white text-lg font-rubik-bold">X</Text>
+          </TouchableOpacity>
+          <FlatList
+            data={property?.gallery}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={selectedGalleryIndex ?? 0}
+            getItemLayout={(_, index) => ({
+              length: windowWidth,
+              offset: windowWidth * index,
+              index,
+            })}
+            keyExtractor={(item, index) =>
+              typeof item === "string" ? item : item?.$id || index.toString()
+            }
+            renderItem={({ item }) => {
+              const imageUrl =
+                typeof item === "string"
+                  ? property?.image
+                  : item?.image || property?.image;
+              return (
+                <Image
+                  source={{ uri: imageUrl }}
+                  resizeMode="contain"
+                  style={{ width: windowWidth, height: windowHeight }}
+                />
+              );
+            }}
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
