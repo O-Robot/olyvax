@@ -2,11 +2,12 @@ import { Card } from "@/components/cards";
 import EmptyResult from "@/components/empty-result";
 import Filters from "@/components/filters";
 import Search from "@/components/search";
+import { SkeletonContainer } from "@/components/skeleton";
 import icons from "@/constants/icons";
 import { getProperties } from "@/lib/appwrite";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -20,8 +21,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Explore() {
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
+  const [properties, setProperties] = useState<any[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
   const {
-    data: properties,
+    data: initialProperties,
     loading: loading,
     refetch,
   } = useAppwrite({
@@ -31,6 +37,7 @@ export default function Explore() {
       filter: params.filter!,
       query: params.query!,
       limit: 20,
+      offset: 0,
     },
     skip: true,
   });
@@ -38,32 +45,65 @@ export default function Explore() {
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   useEffect(() => {
+    if (initialProperties) {
+      setProperties(initialProperties);
+      setOffset(0);
+      setHasMore(initialProperties.length === 20);
+    }
+  }, [initialProperties]);
+
+  useEffect(() => {
     refetch({
       featured: false,
       filter: params.filter!,
       query: params.query!,
       limit: 20,
+      offset: 0,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.filter, params.query]);
+
+  const handleLoadMore = async () => {
+    if (!hasMore || loadingMore || loading) return;
+
+    setLoadingMore(true);
+    const newOffset = offset + 20;
+
+    try {
+      const res = await getProperties({
+        featured: false,
+        filter: params.filter!,
+        query: params.query!,
+        limit: 20,
+        offset: newOffset,
+      });
+
+      if (res) {
+        setProperties((prev) => [...prev, ...res]);
+        setOffset(newOffset);
+        setHasMore(res.length === 20);
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   return (
-    <SafeAreaView className="bg-white h-full">
+    <SafeAreaView edges={["top"]} className="bg-white h-full">
       <FlatList
         data={properties}
         renderItem={({ item }) => (
           <Card onPress={() => handleCardPress(item?.$id)} item={item} />
         )}
-        contentContainerClassName="pb-32"
+        contentContainerClassName="pb-24"
         columnWrapperClassName="flex flex-row gap-5 px-5 justify-between"
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => `${item.$id}-${index}`}
         numColumns={2}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
         ListEmptyComponent={
-          loading ? (
-            <ActivityIndicator size="large" className="text-primary mt-5" />
-          ) : (
-            <EmptyResult />
-          )
+          loading ? <SkeletonContainer count={6} /> : <EmptyResult />
         }
         ListHeaderComponent={() => (
           <View className="px-5">
@@ -93,6 +133,13 @@ export default function Explore() {
             </View>
           </View>
         )}
+        ListFooterComponent={
+          <View>
+            {loadingMore && (
+              <ActivityIndicator size="small" className="text-primary mt-5" />
+            )}
+          </View>
+        }
       />
     </SafeAreaView>
   );

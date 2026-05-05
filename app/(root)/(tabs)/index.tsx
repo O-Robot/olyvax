@@ -1,6 +1,7 @@
 import { Card } from "@/components/cards";
 import EmptyResult from "@/components/empty-result";
 import Filters from "@/components/filters";
+import { CardSkeleton, SkeletonContainer } from "@/components/skeleton";
 import { getGreeting } from "@/constants";
 import icons from "@/constants/icons";
 import { getProperties } from "@/lib/appwrite";
@@ -8,14 +9,7 @@ import { useGlobalContext } from "@/lib/global-provider";
 import { useAppwrite } from "@/lib/useAppwrite";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
@@ -60,23 +54,19 @@ export default function HomeScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.filter, params.query]);
   return (
-    <SafeAreaView className="bg-white h-full">
+    <SafeAreaView edges={["top"]} className="bg-white h-full">
       <FlatList
         data={properties}
         renderItem={({ item }) => (
           <Card onPress={() => handleCardPress(item?.$id)} item={item} />
         )}
-        contentContainerClassName="pb-32"
+        contentContainerClassName="pb-24"
         columnWrapperClassName="flex flex-row gap-5 px-5 justify-between"
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => `${item.$id}-${index}`}
         numColumns={2}
         ListEmptyComponent={
-          loading ? (
-            <ActivityIndicator size="large" className="text-primary mt-5" />
-          ) : (
-            <EmptyResult />
-          )
+          loading ? <SkeletonContainer count={6} /> : <EmptyResult />
         }
         ListHeaderComponent={() => (
           <View className="px-5">
@@ -100,7 +90,31 @@ export default function HomeScreen() {
             {/* <Search /> */}
             <View className="my-5">
               {featuredLoading ? (
-                <ActivityIndicator size="small" className="text-primary mt-5" />
+                <>
+                  <View className="flex flex-row items-center justify-between">
+                    <Text className="text-xl font-rubik-bold text-black">
+                      Featured
+                    </Text>
+                    <TouchableOpacity>
+                      <Text className="text-lg font-rubik-bold text-primary">
+                        See All
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <FlatList
+                    data={[1, 2, 3]}
+                    renderItem={() => (
+                      <View className="w-60">
+                        <CardSkeleton />
+                      </View>
+                    )}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerClassName="flex gap-5 mt-5"
+                    keyExtractor={(item) => item.toString()}
+                    bounces={false}
+                  />
+                </>
               ) : !featuredData || featuredData.length === 0 ? (
                 <></>
               ) : (
