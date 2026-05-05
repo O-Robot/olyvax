@@ -285,7 +285,6 @@ const Property = () => {
           </TouchableOpacity>
         </View>
       </View>
-      ≈
     </View>
   );
 };
