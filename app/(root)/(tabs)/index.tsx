@@ -58,7 +58,9 @@ export default function HomeScreen() {
       <FlatList
         data={properties}
         renderItem={({ item }) => (
-          <Card onPress={() => handleCardPress(item?.$id)} item={item} />
+          <View className="flex-1 max-w-[48%]">
+            <Card onPress={() => handleCardPress(item?.$id)} item={item} />
+          </View>
         )}
         contentContainerClassName="pb-24"
         columnWrapperClassName="flex flex-row gap-5 px-5 justify-between"

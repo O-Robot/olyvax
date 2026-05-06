@@ -161,11 +161,13 @@ export async function getProperties({
   filter,
   query,
   limit,
+  offset,
 }: {
   filter: string;
   featured: boolean;
   query: string;
   limit?: number;
+  offset?: number;
 }) {
   try {
     const queries = [Query.orderDesc("$createdAt")];
@@ -186,6 +188,7 @@ export async function getProperties({
       );
 
     if (limit) queries.push(Query.limit(limit));
+    if (offset) queries.push(Query.offset(offset));
 
     const result = await database.listDocuments(
       config.databaseId!,
@@ -197,6 +200,59 @@ export async function getProperties({
   } catch (error) {
     console.log(error);
     return [];
+  }
+}
+
+export async function getPaginatedProperties({
+  featured,
+  filter,
+  query,
+  limit,
+  offset,
+}: {
+  filter: string;
+  featured: boolean;
+  query: string;
+  limit?: number;
+  offset?: number;
+}) {
+  try {
+    const queries = [Query.orderDesc("$createdAt")];
+
+    if (featured) {
+      queries.push(Query.equal("featured", true));
+    } else {
+      queries.push(Query.equal("featured", false));
+    }
+    if (filter && filter !== "All") queries.push(Query.equal("type", filter));
+    if (query)
+      queries.push(
+        Query.or([
+          Query.search("name", query),
+          Query.search("address", query),
+          Query.search("type", query),
+        ]),
+      );
+
+    if (limit) queries.push(Query.limit(limit));
+    if (offset) queries.push(Query.offset(offset));
+
+    const result = await database.listDocuments(
+      config.databaseId!,
+      config.propertieasCollectionId!,
+      queries,
+    );
+
+    return {
+      documents: result.documents,
+      total: result.total,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      documents: [],
+      total: 0,
+    };
   }
 }
 
