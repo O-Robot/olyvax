@@ -1,6 +1,7 @@
 import GlobalProvider from "@/lib/global-provider";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import {
   configureReanimatedLogger,
@@ -13,7 +14,7 @@ configureReanimatedLogger({
   strict: false,
 });
 
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -28,7 +29,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) {
       const timer = setTimeout(() => {
-        SplashScreen.hideAsync();
+        void SplashScreen.hideAsync().catch(() => {
+          // Ignore if the native splash is already gone for this controller.
+        });
       }, 3000);
 
       return () => clearTimeout(timer);

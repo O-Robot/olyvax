@@ -1,3 +1,4 @@
+import { clamp, formatCurrency, getParamNumber } from "@/constants";
 import { categories } from "@/constants/data";
 import icons from "@/constants/icons";
 import images from "@/constants/images";
@@ -31,21 +32,6 @@ type RangeSliderProps = {
   values: [number, number];
   onChange: (values: [number, number]) => void;
   showChart?: boolean;
-};
-
-const formatCurrency = (value: number) =>
-  `₦${Math.round(value).toLocaleString()}`;
-const formatNumber = (value: number) => Math.round(value).toLocaleString();
-
-const clamp = (value: number, min: number, max: number) => {
-  return Math.min(Math.max(value, min), max);
-};
-
-const getParamNumber = (value: string | undefined, fallback: number) => {
-  if (!value) return fallback;
-
-  const numberValue = Number(value);
-  return Number.isNaN(numberValue) ? fallback : numberValue;
 };
 
 const getClampedRange = (

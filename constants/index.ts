@@ -25,3 +25,17 @@ export function getGreeting() {
   if (hour < 18) return "Good Afternoon";
   return "Good Evening";
 }
+
+export const formatCurrency = (value: number) =>
+  `₦${Math.round(value).toLocaleString()}`;
+
+export const clamp = (value: number, min: number, max: number) => {
+  return Math.min(Math.max(value, min), max);
+};
+
+export const getParamNumber = (value: string | undefined, fallback: number) => {
+  if (!value) return fallback;
+
+  const numberValue = Number(value);
+  return Number.isNaN(numberValue) ? fallback : numberValue;
+};
