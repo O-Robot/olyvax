@@ -45,7 +45,7 @@ const SettingItem = ({
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
 
-  const handleLogout = async () => {
+  const confirmLogout = async () => {
     const result = await logout();
 
     if (result) {
@@ -55,6 +55,21 @@ const Profile = () => {
       Alert.alert("Error", "An error occured while logging out. Try Again!");
     }
   };
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: confirmLogout,
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView className="h-full bg-white">
       <ScrollView

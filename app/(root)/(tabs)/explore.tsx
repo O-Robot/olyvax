@@ -38,9 +38,24 @@ const getPageItems = (currentPage: number, totalPages: number): PageItem[] => {
 };
 
 export default function Explore() {
-  const params = useLocalSearchParams<{ query?: string; filter?: string }>();
+  const params = useLocalSearchParams<{
+    query?: string;
+    filter?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    bedrooms?: string;
+    bathrooms?: string;
+    minArea?: string;
+    maxArea?: string;
+  }>();
   const filter = params.filter ?? "All";
   const query = params.query ?? "";
+  const minPrice = params.minPrice ?? "";
+  const maxPrice = params.maxPrice ?? "";
+  const bedrooms = params.bedrooms ?? "";
+  const bathrooms = params.bathrooms ?? "";
+  const minArea = params.minArea ?? "";
+  const maxArea = params.maxArea ?? "";
 
   const [properties, setProperties] = useState<any[]>([]);
   const [page, setPage] = useState(1);
@@ -56,6 +71,12 @@ export default function Explore() {
       featured: false,
       filter,
       query,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
       limit: PAGE_SIZE,
       offset: 0,
     },
@@ -80,11 +101,17 @@ export default function Explore() {
       featured: false,
       filter,
       query,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
       limit: PAGE_SIZE,
       offset: 0,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, query]);
+  }, [filter, query, minPrice, maxPrice, bedrooms, bathrooms, minArea, maxArea]);
 
   const handlePageChange = async (nextPage: number) => {
     if (loading || nextPage < 1 || nextPage === page) return;
@@ -98,6 +125,12 @@ export default function Explore() {
       featured: false,
       filter,
       query,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
       limit: PAGE_SIZE,
       offset: (nextPage - 1) * PAGE_SIZE,
     });

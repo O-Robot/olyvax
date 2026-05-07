@@ -1,14 +1,34 @@
+import FilterModal from "@/components/filter-modal";
 import icons from "@/constants/icons";
-import { router, useLocalSearchParams, usePathname } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Image, TextInput, TouchableOpacity, View } from "react-native";
 import { useDebouncedCallback } from "use-debounce";
 
 const Search = () => {
-  const path = usePathname();
-  const params = useLocalSearchParams<{ query?: string }>();
+  const params = useLocalSearchParams<{
+    query?: string;
+    filter?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    bedrooms?: string;
+    bathrooms?: string;
+    minArea?: string;
+    maxArea?: string;
+  }>();
 
   const [search, setSearch] = useState(params.query);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const hasActiveFilter =
+    (params.filter && params.filter !== "All") ||
+    Boolean(
+      params.minPrice ||
+        params.maxPrice ||
+        params.bedrooms ||
+        params.bathrooms ||
+        params.minArea ||
+        params.maxArea,
+    );
 
   const debouncedsearch = useDebouncedCallback(
     (text: string) => router.setParams({ query: text }),
@@ -40,9 +60,25 @@ const Search = () => {
           <Image source={icons.cancel} className="size-5 mr-2" />
         </TouchableOpacity>
       )}
-      <TouchableOpacity>
-        <Image source={icons.filter} className="size-5" />
+      <TouchableOpacity
+        className={`relative size-9 rounded-full items-center justify-center ${
+          hasActiveFilter ? "bg-primary-100" : ""
+        }`}
+        onPress={() => setFilterVisible(true)}
+      >
+        <Image
+          source={icons.filter}
+          className="size-5"
+          tintColor={hasActiveFilter ? "#FF6B00" : undefined}
+        />
+        {hasActiveFilter && (
+          <View className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-primary" />
+        )}
       </TouchableOpacity>
+      <FilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+      />
     </View>
   );
 };

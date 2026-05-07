@@ -156,36 +156,114 @@ export async function getAllProperties({
     return [];
   }
 }
+
+type PropertyFilterParams = {
+  filter: string;
+  featured: boolean;
+  query: string;
+  limit?: number;
+  offset?: number;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  bedrooms?: number | string;
+  bathrooms?: number | string;
+  minArea?: number | string;
+  maxArea?: number | string;
+};
+
+const toNumber = (value?: number | string) => {
+  if (value === undefined || value === "") return undefined;
+
+  const numberValue = Number(value);
+  return Number.isNaN(numberValue) ? undefined : numberValue;
+};
+
+const buildPropertyQueries = ({
+  featured,
+  filter,
+  query,
+  minPrice,
+  maxPrice,
+  bedrooms,
+  bathrooms,
+  minArea,
+  maxArea,
+}: PropertyFilterParams) => {
+  const queries = [Query.orderDesc("$createdAt")];
+
+  if (featured) {
+    queries.push(Query.equal("featured", true));
+  } else {
+    queries.push(Query.equal("featured", false));
+  }
+  if (filter && filter !== "All") queries.push(Query.equal("type", filter));
+  if (query)
+    queries.push(
+      Query.or([
+        Query.search("name", query),
+        Query.search("address", query),
+        Query.search("type", query),
+      ]),
+    );
+
+  const priceMin = toNumber(minPrice);
+  const priceMax = toNumber(maxPrice);
+  const bedroomCount = toNumber(bedrooms);
+  const bathroomCount = toNumber(bathrooms);
+  const areaMin = toNumber(minArea);
+  const areaMax = toNumber(maxArea);
+
+  if (priceMin !== undefined && priceMax !== undefined) {
+    queries.push(Query.between("price", priceMin, priceMax));
+  } else if (priceMin !== undefined) {
+    queries.push(Query.greaterThanEqual("price", priceMin));
+  } else if (priceMax !== undefined) {
+    queries.push(Query.lessThanEqual("price", priceMax));
+  }
+
+  if (bedroomCount !== undefined) {
+    queries.push(Query.greaterThanEqual("bedrooms", bedroomCount));
+  }
+  if (bathroomCount !== undefined) {
+    queries.push(Query.greaterThanEqual("bathrooms", bathroomCount));
+  }
+
+  if (areaMin !== undefined && areaMax !== undefined) {
+    queries.push(Query.between("area", areaMin, areaMax));
+  } else if (areaMin !== undefined) {
+    queries.push(Query.greaterThanEqual("area", areaMin));
+  } else if (areaMax !== undefined) {
+    queries.push(Query.lessThanEqual("area", areaMax));
+  }
+
+  return queries;
+};
+
 export async function getProperties({
   featured,
   filter,
   query,
   limit,
   offset,
-}: {
-  filter: string;
-  featured: boolean;
-  query: string;
-  limit?: number;
-  offset?: number;
-}) {
+  minPrice,
+  maxPrice,
+  bedrooms,
+  bathrooms,
+  minArea,
+  maxArea,
+}: PropertyFilterParams) {
   try {
-    const queries = [Query.orderDesc("$createdAt")];
-
-    if (featured) {
-      queries.push(Query.equal("featured", true));
-    } else {
-      queries.push(Query.equal("featured", false));
-    }
-    if (filter && filter !== "All") queries.push(Query.equal("type", filter));
-    if (query)
-      queries.push(
-        Query.or([
-          Query.search("name", query),
-          Query.search("address", query),
-          Query.search("type", query),
-        ]),
-      );
+    const queries = buildPropertyQueries({
+      featured,
+      filter,
+      query,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
+    });
 
     if (limit) queries.push(Query.limit(limit));
     if (offset) queries.push(Query.offset(offset));
@@ -209,30 +287,25 @@ export async function getPaginatedProperties({
   query,
   limit,
   offset,
-}: {
-  filter: string;
-  featured: boolean;
-  query: string;
-  limit?: number;
-  offset?: number;
-}) {
+  minPrice,
+  maxPrice,
+  bedrooms,
+  bathrooms,
+  minArea,
+  maxArea,
+}: PropertyFilterParams) {
   try {
-    const queries = [Query.orderDesc("$createdAt")];
-
-    if (featured) {
-      queries.push(Query.equal("featured", true));
-    } else {
-      queries.push(Query.equal("featured", false));
-    }
-    if (filter && filter !== "All") queries.push(Query.equal("type", filter));
-    if (query)
-      queries.push(
-        Query.or([
-          Query.search("name", query),
-          Query.search("address", query),
-          Query.search("type", query),
-        ]),
-      );
+    const queries = buildPropertyQueries({
+      featured,
+      filter,
+      query,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      bathrooms,
+      minArea,
+      maxArea,
+    });
 
     if (limit) queries.push(Query.limit(limit));
     if (offset) queries.push(Query.offset(offset));
@@ -252,6 +325,49 @@ export async function getPaginatedProperties({
     return {
       documents: [],
       total: 0,
+    };
+  }
+}
+
+export async function getPropertyFilterBounds() {
+  try {
+    const [minPriceResult, maxPriceResult, minAreaResult, maxAreaResult] =
+      await Promise.all([
+        database.listDocuments(
+          config.databaseId!,
+          config.propertieasCollectionId!,
+          [Query.select(["price"]), Query.orderAsc("price"), Query.limit(1)],
+        ),
+        database.listDocuments(
+          config.databaseId!,
+          config.propertieasCollectionId!,
+          [Query.select(["price"]), Query.orderDesc("price"), Query.limit(1)],
+        ),
+        database.listDocuments(
+          config.databaseId!,
+          config.propertieasCollectionId!,
+          [Query.select(["area"]), Query.orderAsc("area"), Query.limit(1)],
+        ),
+        database.listDocuments(
+          config.databaseId!,
+          config.propertieasCollectionId!,
+          [Query.select(["area"]), Query.orderDesc("area"), Query.limit(1)],
+        ),
+      ]);
+
+    return {
+      minPrice: Number(minPriceResult.documents[0]?.price ?? 0),
+      maxPrice: Number(maxPriceResult.documents[0]?.price ?? 0),
+      minArea: Number(minAreaResult.documents[0]?.area ?? 0),
+      maxArea: Number(maxAreaResult.documents[0]?.area ?? 0),
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      minPrice: 0,
+      maxPrice: 0,
+      minArea: 0,
+      maxArea: 0,
     };
   }
 }

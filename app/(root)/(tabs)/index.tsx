@@ -16,7 +16,16 @@ export default function HomeScreen() {
   const { user } = useGlobalContext();
   const greeting = getGreeting();
 
-  const params = useLocalSearchParams<{ query?: string; filter?: string }>();
+  const params = useLocalSearchParams<{
+    query?: string;
+    filter?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    bedrooms?: string;
+    bathrooms?: string;
+    minArea?: string;
+    maxArea?: string;
+  }>();
 
   const { data: featuredData, loading: featuredLoading } = useAppwrite({
     fn: getProperties,
@@ -24,6 +33,12 @@ export default function HomeScreen() {
       featured: true,
       filter: params.filter!,
       query: params.query!,
+      minPrice: params.minPrice ?? "",
+      maxPrice: params.maxPrice ?? "",
+      bedrooms: params.bedrooms ?? "",
+      bathrooms: params.bathrooms ?? "",
+      minArea: params.minArea ?? "",
+      maxArea: params.maxArea ?? "",
       limit: 6,
     },
   });
@@ -37,7 +52,13 @@ export default function HomeScreen() {
       featured: false,
       filter: params.filter!,
       query: params.query!,
-      limit: 10,
+      minPrice: params.minPrice ?? "",
+      maxPrice: params.maxPrice ?? "",
+      bedrooms: params.bedrooms ?? "",
+      bathrooms: params.bathrooms ?? "",
+      minArea: params.minArea ?? "",
+      maxArea: params.maxArea ?? "",
+      limit: 20,
     },
     skip: true,
   });
@@ -49,10 +70,25 @@ export default function HomeScreen() {
       featured: false,
       filter: params.filter!,
       query: params.query!,
-      limit: 10,
+      minPrice: params.minPrice ?? "",
+      maxPrice: params.maxPrice ?? "",
+      bedrooms: params.bedrooms ?? "",
+      bathrooms: params.bathrooms ?? "",
+      minArea: params.minArea ?? "",
+      maxArea: params.maxArea ?? "",
+      limit: 20,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.filter, params.query]);
+  }, [
+    params.filter,
+    params.query,
+    params.minPrice,
+    params.maxPrice,
+    params.bedrooms,
+    params.bathrooms,
+    params.minArea,
+    params.maxArea,
+  ]);
   return (
     <SafeAreaView edges={["top"]} className="bg-white h-full">
       <FlatList
