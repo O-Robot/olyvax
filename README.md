@@ -6,17 +6,17 @@ The app uses Appwrite as its backend for authentication and property data. Users
 
 ## Screenshots
 
-| Splash | Sign In |
-| --- | --- |
-| <img src="assets/screenshots/splash.png" alt="Olyvax splash screen" width="220" /> | <img src="assets/screenshots/auth.png" alt="Olyvax sign in screen" width="220" /> |
+| Splash                                                                             | Sign In                                                                           | Profile                                                                              |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| <img src="assets/screenshots/splash.png" alt="Olyvax splash screen" width="220" /> | <img src="assets/screenshots/auth.png" alt="Olyvax sign in screen" width="220" /> | <img src="assets/screenshots/profile.png" alt="Olyvax profile screen" width="220" /> |
 
-| Home | Explore | Filter |
-| --- | --- | --- |
+| Home                                                                           | Explore                                                                              | Filter                                                                             |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | <img src="assets/screenshots/home.png" alt="Olyvax home screen" width="220" /> | <img src="assets/screenshots/explore.png" alt="Olyvax explore screen" width="220" /> | <img src="assets/screenshots/filters.png" alt="Olyvax filter modal" width="220" /> |
 
-| Property Details | Profile |
-| --- | --- |
-| <img src="assets/screenshots/details.png" alt="Olyvax property details screen" width="220" /> | <img src="assets/screenshots/profile.png" alt="Olyvax profile screen" width="220" /> |
+| Property Details                                                                              |
+| --------------------------------------------------------------------------------------------- |
+| <img src="assets/screenshots/details.png" alt="Olyvax property details screen" width="220" /> |
 
 ## Features
 
