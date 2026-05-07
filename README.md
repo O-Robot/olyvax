@@ -1,50 +1,95 @@
-# Welcome to your Expo app 👋
+# Olyvax
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Olyvax is a React Native property discovery project built with Expo. It is not a real estate product or a production marketplace. It is a portfolio/practice project that explores how a modern property browsing mobile app could work: authentication, listings, search, filters, pagination, property details, galleries, and a profile area.
 
-## Get started
+The app uses Appwrite as its backend for authentication and property data. Users can sign in, browse featured and recommended properties, search listings, apply filters, view property details, and inspect gallery images.
 
-1. Install dependencies
+## Screenshots
 
-   ```bash
-   npm install
-   ```
+| Splash | Sign In |
+| --- | --- |
+| <img src="assets/screenshots/splash.png" alt="Olyvax splash screen" width="220" /> | <img src="assets/screenshots/auth.png" alt="Olyvax sign in screen" width="220" /> |
 
-2. Start the app
+| Home | Explore | Filter |
+| --- | --- | --- |
+| <img src="assets/screenshots/home.png" alt="Olyvax home screen" width="220" /> | <img src="assets/screenshots/explore.png" alt="Olyvax explore screen" width="220" /> | <img src="assets/screenshots/filters.png" alt="Olyvax filter modal" width="220" /> |
 
-   ```bash
-   npx expo start
-   ```
+| Property Details | Profile |
+| --- | --- |
+| <img src="assets/screenshots/details.png" alt="Olyvax property details screen" width="220" /> | <img src="assets/screenshots/profile.png" alt="Olyvax profile screen" width="220" /> |
 
-In the output, you'll find options to open the app in a
+## Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Google authentication with Appwrite.
+- Home screen with featured listings and recommendations.
+- Explore screen with paginated property results.
+- Search by property name, address, and type.
+- Category filters for property types.
+- Bottom-sheet filter modal for price range, property type, bedrooms, bathrooms, and area.
+- Property detail screen with image gallery, facilities, reviews, map preview, and agent information.
+- Profile screen with user avatar, settings, and logout confirmation.
+- Skeleton loaders and empty states for better loading feedback.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Tech Stack
 
-## Get a fresh project
+- Expo
+- React Native
+- Expo Router
+- TypeScript
+- NativeWind
+- Appwrite
+- Expo Image
 
-When you're ready, run:
+## Project Structure
 
-```bash
-npm run reset-project
+```text
+app/                 App routes and screens
+components/          Reusable UI components
+constants/           Static data, images, icons, and helpers
+lib/                 Appwrite, global provider, hooks, image helpers
+assets/              Fonts, icons, and images
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+Install dependencies:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Create a `.env` file with the required Appwrite values:
 
-## Join the community
+```bash
+EXPO_PUBLIC_APPWRITE_ENDPOINT=
+EXPO_PUBLIC_APPWRITE_PROJECT_ID=
+EXPO_PUBLIC_APPWRITE_DATABASE_ID=
+EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID=
+EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID=
+```
 
-Join our community of developers creating universal apps.
+Start the development server:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm run start
+```
+
+Then open the app with Expo Go, an Android emulator, or an iOS simulator.
+
+## Scripts
+
+```bash
+npm run start
+npm run android
+npm run ios
+npm run web
+npm run lint
+```
+
+## Notes
+
+This project depends on a configured Appwrite project and matching collection attributes. Filtering expects fields such as `price`, `type`, `bedrooms`, `bathrooms`, and `area` to exist on property documents.
+
+Remote property images may come from different hosts. The app includes a small image URL normalizer to handle known property image host issues.
